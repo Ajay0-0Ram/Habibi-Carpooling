@@ -2,7 +2,7 @@
 <html>
     <head>
         <title>Sign Up</title>
-        <link rel="stylesheet" href="../css/habibiStyles.css">
+        <link rel="stylesheet" href="../css/habibiStylesV4.css">
         <link href="https://fonts.googleapis.com/css2?family=Sour+Gummy:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 
     </head>
@@ -10,7 +10,7 @@
     <body class="blurredBackground">
         <div id="signup">
             
-            <!-- Form submission will be handled by PHP below -->
+            <!-- sign up from -->
             <form id="signupForm" action="signUp.php" method="POST">
                 <fieldset>
                     <legend>Create Your Account!</legend>
@@ -36,36 +36,35 @@
                 </fieldset>
             </form>
         </div>
-        <p>Already have an account? <a href="login.php">Login here</a>.</p>
+        <p id = "loginMsg">Already have an account? <a href="login.php">Login here</a>.</p>
     </body>
 </html>
 
 <?php
-    // Check if the form is submitted
+    //check if the form is submitted
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-        // Sanitize user input 
+        //sanitize user input 
         $user = htmlspecialchars($_POST['user']);
         $password = htmlspecialchars($_POST['password']);
         $email = htmlspecialchars($_POST['email']);
         $telephone = htmlspecialchars($_POST['telephone']);
 
 
-    // Database connection details
-    $host = 'sql207.infinityfree.com'; // Database host
-    $dbname = 'if0_37721054_profiles'; // Database name
-    $myUsername = 'if0_37721054'; // Database username
-    $myPassword = 'XBy6Pc3xIhSzC'; // Database password
+    //db connection details
+    $host = 'sql207.infinityfree.com';
+    $dbname = 'if0_37721054_profiles';
+    $myUsername = 'if0_37721054'; 
+    $myPassword = 'XBy6Pc3xIhSzC'; 
 
-        // Create a MySQLi connection
+        //create a MySQLi connection
         $conn = new mysqli($host, $myUsername, $myPassword, $dbname);
 
-        // Check for connection errors
+        //check for connection errors
         if ($conn->connect_error) {
             die("Connection failed: " . $conn->connect_error);
         }
 
-        //make sure they don't already exist in the db with their username, email or telephone, and give them error messages
-        // Check if username already exists
+        //check if username already exists
         $sql_check_username = "SELECT COUNT(*) FROM users WHERE username = ?";
         $stmt_check_username = $conn->prepare($sql_check_username);
         $stmt_check_username->bind_param("s", $user);
@@ -74,7 +73,7 @@
         $stmt_check_username->fetch();
         $stmt_check_username->close();
 
-        // Check if email already exists
+        //check if email already exists
         $sql_check_email = "SELECT COUNT(*) FROM users WHERE email = ?";
         $stmt_check_email = $conn->prepare($sql_check_email);
         $stmt_check_email->bind_param("s", $email);
@@ -83,7 +82,7 @@
         $stmt_check_email->fetch();
         $stmt_check_email->close();
 
-        // Check if telephone already exists
+        //check if telephone already exists
         $sql_check_telephone = "SELECT COUNT(*) FROM users WHERE telephone = ?";
         $stmt_check_telephone = $conn->prepare($sql_check_telephone);
         $stmt_check_telephone->bind_param("s", $telephone);
@@ -92,22 +91,22 @@
         $stmt_check_telephone->fetch();
         $stmt_check_telephone->close();
 
-        // If any of the fields already exist, show an error message
+        //if any of the fields already exist, show an error message
         if ($username_exists > 0) {
-            echo "Username already exists. Please choose a different one.";
+            echo '<div class = "errorMsg"> Username already exists. Please choose a different one. </div>';
         } elseif ($email_exists > 0) {
-            echo "Email already exists. Please choose a different one.";
+            echo '<div class = "errorMsg"> Email already exists. Please choose a different one. </div>';
         } elseif ($telephone_exists > 0) {
-            echo "Telephone number already exists. Please choose a different one.";
+            echo '<div class = "errorMsg"> Telephone already exists. Please choose a different one. </div>';
         }else{
-            // SQL query to insert user data
+            //SQL query to insert user data
             $sql = "INSERT INTO users (username, password, email, telephone) VALUES (?, ?, ?, ?)";
             $stmt = $conn->prepare($sql);
 
-            // Bind parameters to the query
+            //bind params to the query
             $stmt->bind_param("ssss", $user, $password, $email, $telephone);
 
-            // Execute the query
+            //execute the query
             if ($stmt->execute()) {
                 echo "Sign up successful!";
                 header("Location: profile.php");
@@ -116,7 +115,7 @@
                 echo "Something went wrong. Please try again.";
             }
 
-            // Close the statement and connection
+            //close the statement and connection
             $stmt->close();
             $conn->close();
     }

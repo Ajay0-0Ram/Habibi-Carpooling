@@ -2,13 +2,13 @@
     //start the session to handle user login status
     session_start();
 
-    //database connection details
-    $host = 'sql207.infinityfree.com'; // Database host
-    $dbname = 'if0_37721054_profiles'; // Database name
-    $myUsername = 'if0_37721054'; // Database username
-    $myPassword = 'XBy6Pc3xIhSzC'; // Database password
+    //db connection details
+    $host = 'sql207.infinityfree.com';
+    $dbname = 'if0_37721054_profiles';
+    $myUsername = 'if0_37721054';
+    $myPassword = 'XBy6Pc3xIhSzC';
 
-    //create a MySQLi connection (learned in lab)
+    //create a MySQLi connection
     $conn = new mysqli($host, $myUsername, $myPassword, $dbname);
 
     //check for connection errors

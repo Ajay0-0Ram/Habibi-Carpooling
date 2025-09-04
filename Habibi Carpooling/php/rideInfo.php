@@ -1,64 +1,64 @@
 <?php
     session_start();
 
-    // Check if the user is logged in
+    //check if the user is logged in
     if (!isset($_SESSION['username'])) {
-        // If not logged in, redirect to the homepage
+        //if not loged in, redirect to the homepage
         header("Location: ../../index.html");
         exit;
     }
 
-    // Get the username
+    //get the username
     $username = $_SESSION['username'];
 
-    // Get the ride ID from the URL query string
+    //get the ride ID from the URL query string
     if (!isset($_GET['rideID'])) {
         echo "Ride ID is missing.";
         exit;
     }
     $rideID = $_GET['rideID'];
 
-    // Database connection details
-    $host = 'sql207.infinityfree.com'; // Database host
-    $dbname = 'if0_37721054_profiles'; // Database name
-    $myUsername = 'if0_37721054'; // Database username
-    $myPassword = 'XBy6Pc3xIhSzC'; // Database password
+    //db connection details
+    $host = 'sql207.infinityfree.com';
+    $dbname = 'if0_37721054_profiles'; 
+    $myUsername = 'if0_37721054'; 
+    $myPassword = 'XBy6Pc3xIhSzC'; 
 
-    // Create a MySQLi connection
+    //create a MySQLi connection
     $conn = new mysqli($host, $myUsername, $myPassword, $dbname);
 
-    // Check for connection errors
+    //check for connection errors
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
     }
 
-    // Get the ride details using the rideID
+    //get the ride details using the rideID
     $sql = "SELECT * FROM rides WHERE rideID = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $rideID); // Bind the rideID as an integer
+    $stmt->bind_param("i", $rideID); //bind the rideID as an int
     $stmt->execute();
     $result = $stmt->get_result();
 
-    // If no ride is found, show an error
+    //if no ride is found, show an error
     if ($result->num_rows == 0) {
         echo "Ride not found.";
         exit;
     }
 
-    // Fetch the ride details
+    //fetch the ride details
     $ride = $result->fetch_assoc();
 
-    // Check if the logged-in user is the driver or a passenger
+    //check if the logged-in user is the driver or a passenger
     $isDriver = ($ride['driver'] == $username);
     $passengers = json_decode($ride['passengersList'], true);
     $isPassenger = ($ride['driver'] != $username);
 
-    // Fetch contact info for the driver and passengers
+    //fetch contact info for the driver and passengers
     $driverContact = null;
     $passengerContacts = [];
 
     if ($isDriver) {
-        // Driver: Show the passengers' contact info
+        //if driver: show the passengers' contact info
         foreach ($passengers as $passenger) {
             $sqlContact = "SELECT email, telephone FROM users WHERE username = ?";
             $stmtContact = $conn->prepare($sqlContact);
@@ -75,7 +75,7 @@
             $stmtContact->close();
         }
     } else {
-        // Passenger: Show the driver's contact info
+        //if passenger: show the driver's contact info
         $sqlContact = "SELECT email, telephone FROM users WHERE username = ?";
         $stmtContact = $conn->prepare($sqlContact);
         $stmtContact->bind_param("s", $ride['driver']);
@@ -88,10 +88,10 @@
 
     $stmt->close();
 
-    // Handle ride deletion or passenger removal if the form is submitted
+    //handle ride deletion or passenger removal if the form is submitted
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if (isset($_POST['deleteRide']) && $isDriver) {
-            // Delete the ride from the database
+            //delete the ride from the db
             $sqlDelete = "DELETE FROM rides WHERE rideID = ?";
             $stmtDelete = $conn->prepare($sqlDelete);
             $stmtDelete->bind_param("i", $rideID);
@@ -99,26 +99,26 @@
             $stmtDelete->close();
             $conn->close();
 
-            header("Location: profile.php"); // Redirect after deletion
+            header("Location: profile.php"); //redirect to profile
             exit;
         }
 
         if (isset($_POST['removePassenger']) && $isPassenger) {
-            // Remove the user from the passengers list
-            $passengers = array_diff($passengers, [$username]);  // Remove the user from the list
-            $newPassengersList = json_encode(array_values($passengers));  // Update the indexes in the array
+            //remove the user from the passengers list
+            $passengers = array_diff($passengers, [$username]);  //remove the user from the list
+            $newPassengersList = json_encode(array_values($passengers));  //update the indexes in the array
 
-            // Calculate the new number of passengers
+            //calculate the new number of passengers
             $newPassengersCount = count($passengers);
 
-            // Update the passengers list and number of passengers in the database
+            //update the passengers list and number of passengers in the database
             $sqlUpdate = "UPDATE rides SET passengersList = ?, passengersInt = ? WHERE rideID = ?";
             $stmtUpdate = $conn->prepare($sqlUpdate);
             $stmtUpdate->bind_param("sii", $newPassengersList, $newPassengersCount, $rideID); // Bind 3 parameters
             $stmtUpdate->execute();
             $stmtUpdate->close();
 
-            // Redirect back to their profile page after removal
+            //redirect back to their profile
             $conn->close();
             header("Location: profile.php");
             exit;
@@ -130,7 +130,7 @@
 <html>
 <head>
     <title>Ride Info</title>
-    <link rel="stylesheet" href="../css/rideInfoStyles.css">
+    <link rel="stylesheet" href="../css/rideInfoStylesV4.css">
     <link href="https://fonts.googleapis.com/css2?family=Sour+Gummy:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 </head>
 <body class="blurredBackground">
@@ -141,6 +141,7 @@
     <div class="ride-info-container">
 
         <div class="ride-info1">
+        <!-- ride info -->
             
             <h3>Ride ID: <?php echo htmlspecialchars($ride['rideID']); ?></h3>
             
@@ -166,7 +167,7 @@
         </div>
         
         <div class="ride-info2">
-            <!-- Display contact info based on user role -->
+            <!-- contact info -->
             <?php if ($isDriver): ?>
                 <h3>Passenger Contact Info:</h3>
                 <ul>
@@ -188,14 +189,14 @@
     </div> 
     <br>
     <br>
-        <!-- Allow the driver to delete the ride -->
+        <!-- button for the driver to delete the ride -->
         <?php if ($isDriver): ?>
             <form method="POST" onsubmit="return confirm('Are you sure you want to delete this ride?');">
                 <button class="delete-button" type="submit" name="deleteRide">Delete Ride</button>
             </form>
         <?php endif; ?>
 
-        <!-- Allow passengers to remove themselves -->
+        <!-- button for the passengers to remove themselves -->
         <?php if ($isPassenger): ?>
             <form method="POST" onsubmit="return confirm('Are you sure you want to remove yourself from this ride?');">
                 <button class="delete-button" type="submit" name="removePassenger">Remove Me</button>

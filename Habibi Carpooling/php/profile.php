@@ -1,35 +1,35 @@
 <?php
     session_start();
-    // Check if the user is logged in
+    //check if the user is logged in
     if (!isset($_SESSION['username'])) {
 
-        // If not logged in, redirect to the homepage
+        //if not loged in, redirect to the homepage
         header("Location: ../../index.html"); 
         exit; 
     }
 
-    // Get the logged-in username
+    //get the logged-in username
     $username = $_SESSION['username'];
 
-    // Database connection details
-    $host = 'sql207.infinityfree.com'; // Database host
-    $dbname = 'if0_37721054_profiles'; // Database name
-    $myUsername = 'if0_37721054'; // Database username
-    $myPassword = 'XBy6Pc3xIhSzC'; // Database password
+    //db connection details
+    $host = 'sql207.infinityfree.com'; 
+    $dbname = 'if0_37721054_profiles'; 
+    $myUsername = 'if0_37721054'; 
+    $myPassword = 'XBy6Pc3xIhSzC'; 
 
-    // Create a MySQLi connection
+    //create a MySQLi connection
     $conn = new mysqli($host, $myUsername, $myPassword, $dbname);
 
-    // Check for connection errors
+    //check for connection errors
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
     }
 
-    // Initialize $ridesTaken and $ridesPosted as empty arrays before the queries
+    //initialize $ridesTaken and $ridesPosted as empty arrays
     $ridesTaken = [];
     $ridesPosted = [];
 
-    // Get rides posted by the user
+    //get rides posted by the user
     $sqlPosted = "SELECT * FROM rides WHERE driver = ?";
     $stmtPosted = $conn->prepare($sqlPosted);
     $stmtPosted->bind_param("s", $username);
@@ -37,20 +37,20 @@
     $resultPosted = $stmtPosted->get_result();
     $ridesPosted = $resultPosted->fetch_all(MYSQLI_ASSOC);
 
-    // Get rides taken by the user using JSON_CONTAINS
+    //get rides taken by the user using JSON_CONTAINS
     $sqlTaken = "SELECT * FROM rides WHERE JSON_CONTAINS(passengersList, ?)";
     $stmtTaken = $conn->prepare($sqlTaken);
-    $usernameJson = json_encode([$username]); // Ensure the username is JSON-encoded
+    $usernameJson = json_encode([$username]); //ensure the username is JSON-encoded
     $stmtTaken->bind_param("s", $usernameJson);
     $stmtTaken->execute();
     $resultTaken = $stmtTaken->get_result();
     $ridesTaken = $resultTaken->fetch_all(MYSQLI_ASSOC);
 
-    // Close statements
+    //close statements
     $stmtPosted->close();
     $stmtTaken->close();
 
-    // Close the database connection
+    //close the db connection
     $conn->close();
 ?>
 
@@ -58,19 +58,19 @@
 <html>
     <head>
         <title>Profile</title>
-        <link rel="stylesheet" href="../css/habibiStyles.css">
+        <link rel="stylesheet" href="../css/habibiStylesV4.css">
         <link href="https://fonts.googleapis.com/css2?family=Sour+Gummy:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
         
     </head>
     <body>
 
         <div id="profile">
-            <!-- Welcome Message -->
+            <!-- welcome message -->
             <h1>Welcome, <span style="color:#1fb4c1"> <?php echo htmlspecialchars($username); ?> ! </span></h1>
         
-            <!-- Container for the 4 Divs -->
+            <!-- container for the Divs -->
             <div class="profile-children-container">
-                <!-- Search Bar -->
+                <!-- search bar -->
                 <div class="profilechild" id="search">
                     <h2>Search for a Ride</h2>
                     <form action="searchRide.php" method="GET">
@@ -79,7 +79,7 @@
                     </form>
                 </div>
         
-                <!-- Post a New Ride -->
+                <!-- post a new ride -->
                 <div class="profilechild" id="post">
                     <h2>Post a Ride</h2>
                     <form action="postRide.php" method="GET">
@@ -87,7 +87,7 @@
                     </form>
                 </div>
         
-                <!-- Display Rides Posted by the User -->
+                <!-- display rides posted by the user -->
                 <div class="profilechild" id="display">
                     <h2>Rides Posted</h2>
                     <?php if (count($ridesPosted) > 0): ?>
@@ -103,7 +103,7 @@
                     <?php endif; ?>
                 </div>
         
-                <!-- Display Rides Taken by the User -->
+                <!-- display rides taken by the user -->
                 <div class="profilechild" id="taken">
                     <h2>Rides Taken</h2>
                     <?php if (count($ridesTaken) > 0): ?>
@@ -120,6 +120,7 @@
                 </div>
             </div>
 
+            <!-- button to redirect to homepage -->
         <button id="logoutButton" onclick="window.location.href='../../index.html'">Logout</button>
             
         </div>

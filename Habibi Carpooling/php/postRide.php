@@ -2,65 +2,65 @@
 <?php
 session_start(); 
 
-// Check if the user is logged in (based on session variable)
+//check if the user is logged in (based on session variable)
 if (!isset($_SESSION['username'])) {
-    // If not logged in, redirect to the homepage or login page
-    header("Location: ../../index.html"); // Replace with your homepage URL if it's not "index.php"
-    exit; // Stop further code execution to ensure the redirect works
+    //if not loged in, redirect to the homepage
+    header("Location: ../../index.html");
+    exit; //stop further code execution to ensure the redirect works
 }
 
-// Check if the form is submitted
+//check if the form is submitted
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Collect the data from the form
+    //collect the data from the form
     $departure = htmlspecialchars($_POST['departure']);
     $destination = htmlspecialchars($_POST['destination']);
     $date = htmlspecialchars($_POST['date']);
     $passengersInt = htmlspecialchars($_POST['seats']);
-    $passengersListJson = json_encode([]); // Initialize an empty list for passengers
+    $passengersListJson = json_encode([]); //initialize an empty list for passengers
 
-    // Get the username from the session (assuming the user is logged in)
-    $username = $_SESSION['username']; // This will hold the logged-in user's username
+    //get the username from the session (assuming the user is logged in)
+    $username = $_SESSION['username']; //this holds the logged-in user's username
 
-    // Database connection details
-    $host = 'sql207.infinityfree.com'; // Database host
-    $dbname = 'if0_37721054_profiles'; // Database name
-    $myUsername = 'if0_37721054'; // Database username
-    $myPassword = 'XBy6Pc3xIhSzC'; // Database password
+    //db connection details
+    $host = 'sql207.infinityfree.com';
+    $dbname = 'if0_37721054_profiles'; 
+    $myUsername = 'if0_37721054'; 
+    $myPassword = 'XBy6Pc3xIhSzC'; 
 
-    // Create a MySQLi connection
+    //create a MySQLi connection
     $conn = new mysqli($host, $myUsername, $myPassword, $dbname);
 
-    // Check the connection
+    //check the connection
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
     }
 
-    // Prepare the SQL query to insert the ride details into the database
+    //prepare the SQL query to insert the ride details into the database
     $sql = "INSERT INTO rides (driver, origin, destination, rideDate, passengersInt, passengersList) 
             VALUES (?, ?, ?, ?, ?, ?)";
 
-    // Prepare the statement
+    //prepare the statement
     if ($stmt = $conn->prepare($sql)) {
-        // Bind the parameters to the query
+        //bind the params to the query
         $stmt->bind_param("ssssis", $username, $departure, $destination, $date, $passengersInt, $passengersListJson);
 
-        // Execute the query
+        //execute the query
         if ($stmt->execute()) {
             echo "Ride posted successfully!"; // Provide feedback
-            // Redirect to the profile page
+            //redirect to the profile page
             header('Location: profile.php');
             exit;
         } else {
-            echo "Something went wrong. Please try again."; // Handle failure
+            echo "Something went wrong. Please try again."; //handle failure :(
         }
 
-        // Close the prepared statement
+        //close the prepared statement
         $stmt->close();
     } else {
-        echo "Error preparing statement: " . $conn->error; // Handle SQL errors
+        echo "Error preparing statement: " . $conn->error; //handle SQL errors
     }
 
-    // Close the database connection
+    //close the db connection
     $conn->close();
 }
 ?>
@@ -70,12 +70,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <title>Post a ride</title>
 
     <head>
-    <link rel="stylesheet" href="../css/habibiStyles.css"> 
+    <link rel="stylesheet" href="../css/habibiStylesV4.css"> 
         <link href="https://fonts.googleapis.com/css2?family=Sour+Gummy:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 
     </head>
 
     <body>
+        <!-- form to post a ride -->
         <div id="postRideForm">
             <form action="postRide.php" method="POST">
                 <fieldset>
@@ -102,6 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </fieldset>
             </form>
         </div>
+        <!-- button to go back to profile -->
         <button class="back-button" onclick="window.location.href='profile.php'">Back</button>
 
     </body>
