@@ -19,10 +19,10 @@
     $rideID = $_GET['rideID'];
 
     //db connection details
-    $host = 'sql207.infinityfree.com';
-    $dbname = 'if0_37721054_profiles'; 
-    $myUsername = 'if0_37721054'; 
-    $myPassword = 'XBy6Pc3xIhSzC'; 
+    $host = 'sql204.infinityfree.com';
+    $dbname = 'if0_39881482_profiles';
+    $myUsername = 'if0_39881482';
+    $myPassword = '0o1wBMI46iIW';
 
     //create a MySQLi connection
     $conn = new mysqli($host, $myUsername, $myPassword, $dbname);
